@@ -23,5 +23,6 @@
     <modules>
         <module>nfVault</module>
         <module>jwtProcessing</module>
+        <module>previewGenerator</module>
     </modules>
 </project>
