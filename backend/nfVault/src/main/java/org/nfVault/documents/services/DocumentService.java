@@ -2,6 +2,8 @@ package org.nfVault.documents.services;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.nfVault.documentPreview.events.PreviewCreatedEvent;
+import org.nfVault.documents.events.DocumentNameChangedEvent;
 import org.nfVault.shared.exceptions.ConflictException;
 import org.nfVault.shared.exceptions.NotFoundException;
 import org.nfVault.documents.models.Document;
@@ -9,6 +11,7 @@ import org.nfVault.documents.repository.DocumentRepository;
 import org.nfVault.documents.events.DocumentChangedEvent;
 import org.nfVault.documents.events.DocumentDeletedEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -88,6 +91,7 @@ public class DocumentService {
     public void updateDocumentById(Integer id, String name, String content) {
         Document document = documentRepository.getById(id)
                 .orElseThrow(() -> new NotFoundException("Document not found"));
+        final boolean nameChanged = name != null && !name.equals(document.getName());
 
         if (name != null) {
             document.setName(name);
@@ -95,7 +99,21 @@ public class DocumentService {
         if (content != null) {
             document.setContent(content);
         }
+
+        if (nameChanged) {
+            publishDocumentTitleChanged(document);
+        }
+
         publishDocumentChanged(document);
+    }
+
+    @Transactional
+    @EventListener(PreviewCreatedEvent.class)
+    public void updateDocumentPreview(PreviewCreatedEvent event) {
+        documentRepository.updatePreview(
+                event.id(),
+                event.imagePath()
+        );
     }
 
     @Transactional
@@ -106,6 +124,14 @@ public class DocumentService {
                 .forEach(child -> deleteDocumentById(child.getId()));
         documentRepository.delete(document);
         eventPublisher.publishEvent(new DocumentDeletedEvent(document.getId()));
+    }
+
+    private void publishDocumentTitleChanged(Document document) {
+        eventPublisher.publishEvent(new DocumentNameChangedEvent(
+                document.getId(),
+                document.getType(),
+                document.getName()
+        ));
     }
 
     private void publishDocumentChanged(Document document) {

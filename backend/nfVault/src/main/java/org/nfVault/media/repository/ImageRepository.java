@@ -32,20 +32,19 @@ public class ImageRepository {
         }
     }
 
-    public String store(MultipartFile image, ImageFileExtension extension) {
+    public String store(InputStream imageInputStream, ImageFileExtension extension) {
         final String fileName = UUID.randomUUID() + "." + extension.value();
         final Path target = resolvePath(fileName)
                 .orElseThrow(() -> new IllegalStateException("Invalid image path"));
 
         try (
-                InputStream input = image.getInputStream();
                 OutputStream output = Files.newOutputStream(
                         target,
                         StandardOpenOption.CREATE_NEW,
                         StandardOpenOption.WRITE
                 )
         ) {
-            input.transferTo(output);
+            imageInputStream.transferTo(output);
             return fileName;
         } catch (IOException ex) {
             try {

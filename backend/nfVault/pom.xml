@@ -69,6 +69,13 @@
             <version>0.0.1</version>
         </dependency>
 
+        <!-- Thumbnail Processing Module -->
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>previewGenerator</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

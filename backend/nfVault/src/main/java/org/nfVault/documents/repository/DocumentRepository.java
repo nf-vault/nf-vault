@@ -60,6 +60,19 @@ public class DocumentRepository {
         entityManager.merge(document);
     }
 
+    public void updatePreview(Integer documentId, String previewPath){
+        entityManager.createQuery(
+             """
+                 UPDATE Document document
+                 SET document.previewPath = :previewPath
+                 WHERE document.id = :documentId
+                """
+             )
+             .setParameter("previewPath", previewPath)
+             .setParameter("documentId", documentId)
+             .executeUpdate();
+    }
+
     public void create(Document document){
         entityManager.persist(document);
     }
