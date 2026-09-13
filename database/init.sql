@@ -22,3 +22,25 @@ CREATE TABLE IF NOT EXISTS Invite_Codes (
 
 INSERT INTO Invite_Codes (code, usages_left, generated_by)
 VALUES ('AAAA', 1, NULL);
+
+-- Outbox pattern table
+
+CREATE TYPE outbox_status AS ENUM (
+  'PENDING',
+  'PROCESSING',
+  'SENT'
+);
+
+CREATE TABLE IF NOT EXISTS Outbox (
+  id SERIAL PRIMARY KEY,
+  event_type TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  status outbox_status NOT NULL DEFAULT 'PENDING',
+  last_attempt_at TIMESTAMP,
+  attempts INT NOT NULL DEFAULT 0,
+  payload JSON NOT NULL
+);
+
+CREATE INDEX idx_outbox_pending
+  ON Outbox (created_at)
+  WHERE status = 'PENDING';
