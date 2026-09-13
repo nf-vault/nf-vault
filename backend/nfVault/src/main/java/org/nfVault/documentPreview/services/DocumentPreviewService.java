@@ -11,7 +11,7 @@ import org.nfVault.documents.events.DocumentNameChangedEvent;
 import org.nfVault.media.api.ImageAPI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Service
 public class DocumentPreviewService {
     private final Font previewFont;
     private final ThreadPoolExecutor previewGenerationExecutorService;
