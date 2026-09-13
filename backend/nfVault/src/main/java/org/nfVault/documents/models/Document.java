@@ -19,7 +19,7 @@ public class Document {
     private String name;
 
     @Column(name = "preview_path")
-    private String preview_path;
+    private String previewPath;
 
     @NotNull
     @Column(name = "type")
