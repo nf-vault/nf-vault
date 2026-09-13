@@ -7,6 +7,7 @@ import org.caption.CaptionGenerationConfig;
 import org.caption.CaptionPosition;
 import org.caption.Padding;
 import org.nfVault.documentPreview.events.PreviewCreatedEvent;
+import org.nfVault.documents.events.DocumentCreatedEvent;
 import org.nfVault.documents.events.DocumentNameChangedEvent;
 import org.nfVault.media.api.ImageAPI;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +57,16 @@ public class DocumentPreviewService {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void updateThumbnail(DocumentCreatedEvent event) {
+        this.updateThumbnail(event.title(), event.id());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void updateThumbnail(DocumentNameChangedEvent event) {
+        this.updateThumbnail(event.title(), event.id());
+    }
+
+    private void updateThumbnail(String documentTitle, Integer documentId) {
         new PreviewGenerator(
                 new PreviewCanvasConfig(
                         800,
@@ -66,7 +76,7 @@ public class DocumentPreviewService {
                         "#0F172A"
                 ),
                 new CaptionGenerationConfig(
-                        event.title(),
+                        documentTitle,
                         this.previewFont,
                         Color.decode("#FFFFFF"),
                         CaptionPosition.CENTER_LEFT,
@@ -84,7 +94,7 @@ public class DocumentPreviewService {
             else {
                 eventPublisher.publishEvent(
                         new PreviewCreatedEvent(
-                                event.id(),
+                                documentId,
                                 imageAPI.saveImage(preview)
                         )
                 );

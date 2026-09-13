@@ -3,6 +3,7 @@ package org.nfVault.documents.services;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.nfVault.documentPreview.events.PreviewCreatedEvent;
+import org.nfVault.documents.events.DocumentCreatedEvent;
 import org.nfVault.documents.events.DocumentNameChangedEvent;
 import org.nfVault.shared.exceptions.ConflictException;
 import org.nfVault.shared.exceptions.NotFoundException;
@@ -59,6 +60,13 @@ public class DocumentService {
         publishDocumentChanged(document);
 
         log.warn("Created document {}", document);
+
+        eventPublisher.publishEvent(new DocumentCreatedEvent(
+                document.getId(),
+                document.getType(),
+                document.getName()
+        ));
+
         return document.getId();
     }
 
