@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS Documents (
   id SERIAL PRIMARY KEY,
   content TEXT NOT NULL,
+  preview_path TEXT,
   "type" TEXT NOT NULL,
   "name" TEXT NOT NULL,
   parent_id INTEGER REFERENCES Documents(id)

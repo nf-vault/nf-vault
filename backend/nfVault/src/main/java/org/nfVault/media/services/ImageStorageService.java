@@ -9,6 +9,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 @Service
 public class ImageStorageService {
     private final ImageRepository imageRepository;
@@ -23,7 +31,24 @@ public class ImageStorageService {
 
     public String store(MultipartFile image) {
         ImageFileExtension extension = imageFileValidator.validate(image);
-        return imageRepository.store(image, extension);
+
+        try {
+            return imageRepository.store(image.getInputStream(), extension);
+        } catch (IOException e) {
+            throw new RuntimeException("Error while saving image: ", e);
+        }
+    }
+
+    public String store(BufferedImage image) {
+        final ByteArrayOutputStream imageOutputStream = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "png", imageOutputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Error while converting bufferedImage: ", e);
+        }
+        final InputStream imageInputStream = new ByteArrayInputStream(imageOutputStream.toByteArray());
+
+        return imageRepository.store(imageInputStream, ImageFileExtension.PNG);
     }
 
     public StoredImage get(String fileName) {

@@ -18,6 +18,9 @@ public class Document {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "preview_path")
+    private String previewPath;
+
     @NotNull
     @Column(name = "type")
     private String type;
