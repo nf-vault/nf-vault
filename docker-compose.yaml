@@ -33,21 +33,37 @@ services:
         condition: on-failure
     depends_on:
       - database
+      - rabbitmq
     environment:
       DB_URL: postgresql://database:5432/db
       DB_USER_FILE: /run/secrets/db_user
       DB_PASSWORD_FILE: /run/secrets/db_password
       IMAGE_STORAGE_PATH: /data/images
       SEARCH_INDEX_PATH: /data/search
+      RABBITMQ_HOST: rabbitmq
     volumes:
       - image_data:/data/images
       - search_data:/data/search
     networks:
       - database_net
       - web_server_net
+      - rabbitmq_net
     secrets:
       - db_user
       - db_password
+
+  rabbitmq:
+    image: rabbitmq:4-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_net
     
   nginx:
     image: nf-vault-frontend:latest
@@ -68,6 +84,7 @@ volumes:
   db_data:
   image_data:
   search_data:
+  rabbitmq_data:
 
 configs:
   init-sql:
@@ -76,3 +93,4 @@ configs:
 networks:
   database_net:
   web_server_net:
+  rabbitmq_net:
