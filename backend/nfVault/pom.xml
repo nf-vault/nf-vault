@@ -47,6 +47,16 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -66,6 +76,20 @@
         <dependency>
             <groupId>org</groupId>
             <artifactId>jwtProcessing</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+        <!-- Thumbnail Processing Module -->
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>previewGenerator</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+        <!-- Outbox pattern implementation module -->
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>outbox</artifactId>
             <version>0.0.1</version>
         </dependency>
 
