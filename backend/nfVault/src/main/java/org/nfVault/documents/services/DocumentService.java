@@ -16,9 +16,6 @@ import org.nfVault.documents.models.Document;
 import org.nfVault.documents.repository.DocumentRepository;
 import org.nfVault.documents.events.DocumentChangedEvent;
 import org.nfVault.documents.events.DocumentDeletedEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -63,15 +60,10 @@ public class DocumentService {
                 .parent(parent)
                 .build();
         documentRepository.create(document);
-        publishDocumentChanged(document);
+
+        publishDocumentCreated(document);
 
         log.warn("Created document {}", document);
-
-        outboxEventAPI.enqueue(new DocumentCreatedEvent(
-                document.getId(),
-                document.getType(),
-                document.getName()
-        ));
 
         return document.getId();
     }
@@ -122,16 +114,8 @@ public class DocumentService {
     }
 
     @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "document-service", durable = "true"),
-            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
-            key = "preview.created"
-    ), containerFactory = "outboxRabbitListenerContainerFactory")
-    public void updateDocumentPreview(PreviewCreatedEvent event) {
-        documentRepository.updatePreview(
-                event.id(),
-                event.imagePath()
-        );
+    public void updateDocumentPreview(Integer id, String imagePath) {
+        documentRepository.updatePreview(id, imagePath);
     }
 
     @Transactional
@@ -158,6 +142,14 @@ public class DocumentService {
                 document.getType(),
                 document.getName(),
                 document.getContent()
+        ));
+    }
+
+    private void publishDocumentCreated(Document document) {
+        outboxEventAPI.enqueue(new DocumentCreatedEvent(
+                document.getId(),
+                document.getType(),
+                document.getName()
         ));
     }
 }

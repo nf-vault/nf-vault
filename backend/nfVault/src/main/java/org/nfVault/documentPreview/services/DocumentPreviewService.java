@@ -62,27 +62,7 @@ public class DocumentPreviewService {
         }
     }
 
-
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "document-preview-service", durable = "true"),
-            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
-            key = "document.created"
-    ), containerFactory = "outboxRabbitListenerContainerFactory")
-    public void updateThumbnail(DocumentCreatedEvent event) {
-        this.updateThumbnail(event.title(), event.id());
-    }
-
-
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "document-preview-service", durable = "true"),
-            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
-            key = "document.name-changed"
-    ), containerFactory = "outboxRabbitListenerContainerFactory")
-    public void updateThumbnail(DocumentNameChangedEvent event) {
-        this.updateThumbnail(event.title(), event.id());
-    }
-
-    private void updateThumbnail(String documentTitle, Integer documentId) {
+    public void updateThumbnail(String documentTitle, Integer documentId) {
         new PreviewGenerator(
                 new PreviewCanvasConfig(
                         800,

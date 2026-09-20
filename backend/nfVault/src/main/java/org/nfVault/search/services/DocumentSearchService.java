@@ -53,37 +53,27 @@ public class DocumentSearchService implements ApplicationRunner {
         return searchRepository.search(query, limit);
     }
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "document-search-service", durable = "true"),
-            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
-            key = "document.changed"
-    ), containerFactory = "outboxRabbitListenerContainerFactory")
-    public void updateIndex(DocumentChangedEvent event) {
+    public void updateIndex(Integer documentId, String documentType, String documentTitle, String documentContent) {
         try {
-            if (DOCUMENT_TYPE.equals(event.type())) {
+            if (DOCUMENT_TYPE.equals(documentType)) {
                 searchRepository.upsert(new DocumentIndexEntry(
-                        event.id(),
-                        event.title(),
-                        event.content()
+                        documentId,
+                        documentTitle,
+                        documentContent
                 ));
             } else {
-                searchRepository.delete(event.id());
+                searchRepository.delete(documentId);
             }
         } catch (UncheckedIOException exception) {
-            log.error("Could not index document {}", event.id(), exception);
+            log.error("Could not index document {}", documentId, exception);
         }
     }
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "document-search-service", durable = "true"),
-            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
-            key = "document.deleted"
-    ), containerFactory = "outboxRabbitListenerContainerFactory")
-    public void deleteFromIndex(DocumentDeletedEvent event) {
+    public void deleteFromIndex(Integer documentId) {
         try {
-            searchRepository.delete(event.id());
+            searchRepository.delete(documentId);
         } catch (UncheckedIOException exception) {
-            log.error("Could not remove document {} from index", event.id(), exception);
+            log.error("Could not remove document {} from index", documentId, exception);
         }
     }
 
