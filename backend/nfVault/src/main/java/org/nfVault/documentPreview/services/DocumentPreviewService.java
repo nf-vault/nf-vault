@@ -2,6 +2,7 @@ package org.nfVault.documentPreview.services;
 
 import org.PreviewCanvasConfig;
 import org.PreviewGenerator;
+import org.api.OutboxEventAPI;
 import org.background.config.ColorBackgroundGeneratorConfig;
 import org.caption.CaptionGenerationConfig;
 import org.caption.CaptionPosition;
@@ -11,7 +12,12 @@ import org.nfVault.documents.events.DocumentCreatedEvent;
 import org.nfVault.documents.events.DocumentNameChangedEvent;
 import org.nfVault.media.api.ImageAPI;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -27,15 +33,15 @@ public class DocumentPreviewService {
     private final Font previewFont;
     private final ThreadPoolExecutor previewGenerationExecutorService;
     private final ImageAPI imageAPI;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OutboxEventAPI outboxEventAPI;
 
     public DocumentPreviewService(
             @Value("${preview.font-path:/fonts/font.ttf}") String fontResourcesPath,
             ImageAPI imageAPI,
-            ApplicationEventPublisher eventPublisher
+            OutboxEventAPI outboxEventAPI
     ) {
         this.imageAPI = imageAPI;
-        this.eventPublisher = eventPublisher;
+        this.outboxEventAPI = outboxEventAPI;
 
         this.previewGenerationExecutorService = new ThreadPoolExecutor(
                 0,
@@ -56,12 +62,22 @@ public class DocumentPreviewService {
         }
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "document-preview-service", durable = "true"),
+            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
+            key = "document.created"
+    ), containerFactory = "outboxRabbitListenerContainerFactory")
     public void updateThumbnail(DocumentCreatedEvent event) {
         this.updateThumbnail(event.title(), event.id());
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "document-preview-service", durable = "true"),
+            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
+            key = "document.name-changed"
+    ), containerFactory = "outboxRabbitListenerContainerFactory")
     public void updateThumbnail(DocumentNameChangedEvent event) {
         this.updateThumbnail(event.title(), event.id());
     }
@@ -92,7 +108,7 @@ public class DocumentPreviewService {
                 throw new RuntimeException("Error while generating preview", throwable);
             }
             else {
-                eventPublisher.publishEvent(
+                outboxEventAPI.enqueue(
                         new PreviewCreatedEvent(
                                 documentId,
                                 imageAPI.saveImage(preview)

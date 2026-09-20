@@ -2,6 +2,11 @@ package org.nfVault.documents.services;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.api.OutboxEventAPI;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.nfVault.documentPreview.events.PreviewCreatedEvent;
 import org.nfVault.documents.events.DocumentCreatedEvent;
 import org.nfVault.documents.events.DocumentNameChangedEvent;
@@ -13,6 +18,7 @@ import org.nfVault.documents.events.DocumentChangedEvent;
 import org.nfVault.documents.events.DocumentDeletedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,14 +29,14 @@ import java.util.List;
 @Slf4j
 public class DocumentService {
     private final DocumentRepository documentRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OutboxEventAPI outboxEventAPI;
 
     public DocumentService(
             DocumentRepository documentRepository,
-            ApplicationEventPublisher eventPublisher
+            OutboxEventAPI outboxEventAPI
     ) {
         this.documentRepository = documentRepository;
-        this.eventPublisher = eventPublisher;
+        this.outboxEventAPI = outboxEventAPI;
     }
 
     @Transactional
@@ -61,7 +67,7 @@ public class DocumentService {
 
         log.warn("Created document {}", document);
 
-        eventPublisher.publishEvent(new DocumentCreatedEvent(
+        outboxEventAPI.enqueue(new DocumentCreatedEvent(
                 document.getId(),
                 document.getType(),
                 document.getName()
@@ -116,7 +122,11 @@ public class DocumentService {
     }
 
     @Transactional
-    @EventListener(PreviewCreatedEvent.class)
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "document-service", durable = "true"),
+            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
+            key = "preview.created"
+    ), containerFactory = "outboxRabbitListenerContainerFactory")
     public void updateDocumentPreview(PreviewCreatedEvent event) {
         documentRepository.updatePreview(
                 event.id(),
@@ -131,11 +141,11 @@ public class DocumentService {
         documentRepository.getByParentId(id)
                 .forEach(child -> deleteDocumentById(child.getId()));
         documentRepository.delete(document);
-        eventPublisher.publishEvent(new DocumentDeletedEvent(document.getId()));
+        outboxEventAPI.enqueue(new DocumentDeletedEvent(document.getId()));
     }
 
     private void publishDocumentTitleChanged(Document document) {
-        eventPublisher.publishEvent(new DocumentNameChangedEvent(
+        outboxEventAPI.enqueue(new DocumentNameChangedEvent(
                 document.getId(),
                 document.getType(),
                 document.getName()
@@ -143,7 +153,7 @@ public class DocumentService {
     }
 
     private void publishDocumentChanged(Document document) {
-        eventPublisher.publishEvent(new DocumentChangedEvent(
+        outboxEventAPI.enqueue(new DocumentChangedEvent(
                 document.getId(),
                 document.getType(),
                 document.getName(),

@@ -1,6 +1,10 @@
 package org.nfVault.search.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.nfVault.documents.models.Document;
 import org.nfVault.documents.repository.DocumentRepository;
 import org.nfVault.search.repository.DocumentSearchRepository;
@@ -12,9 +16,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
-
 import java.io.UncheckedIOException;
 import java.util.List;
 
@@ -52,7 +53,11 @@ public class DocumentSearchService implements ApplicationRunner {
         return searchRepository.search(query, limit);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "document-search-service", durable = "true"),
+            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
+            key = "document.changed"
+    ), containerFactory = "outboxRabbitListenerContainerFactory")
     public void updateIndex(DocumentChangedEvent event) {
         try {
             if (DOCUMENT_TYPE.equals(event.type())) {
@@ -69,7 +74,11 @@ public class DocumentSearchService implements ApplicationRunner {
         }
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "document-search-service", durable = "true"),
+            exchange = @Exchange(value = "${outbox.amqp-exchange-name:outbox.events}", type = "topic"),
+            key = "document.deleted"
+    ), containerFactory = "outboxRabbitListenerContainerFactory")
     public void deleteFromIndex(DocumentDeletedEvent event) {
         try {
             searchRepository.delete(event.id());
