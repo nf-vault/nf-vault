@@ -1,3 +1,7 @@
 package org.nfVault.documents.events;
 
-public record DocumentDeletedEvent(Integer id) {}
+import org.api.OutboxEvent;
+import org.api.annotations.EventType;
+
+@EventType("document.deleted")
+public record DocumentDeletedEvent(Integer id) implements OutboxEvent {}

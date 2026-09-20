@@ -1,6 +1,10 @@
 package org.nfVault.documentPreview.events;
 
-public record PreviewCreatedEvent(
+import org.api.OutboxEvent;
+import org.api.annotations.EventType;
+
+@EventType("preview.created")
+public record PreviewCreatedEvent (
         Integer id,
         String imagePath
-) {}
+) implements OutboxEvent {}

@@ -2,6 +2,11 @@ package org.nfVault.documents.services;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.api.OutboxEventAPI;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.nfVault.documentPreview.events.PreviewCreatedEvent;
 import org.nfVault.documents.events.DocumentCreatedEvent;
 import org.nfVault.documents.events.DocumentNameChangedEvent;
@@ -11,8 +16,6 @@ import org.nfVault.documents.models.Document;
 import org.nfVault.documents.repository.DocumentRepository;
 import org.nfVault.documents.events.DocumentChangedEvent;
 import org.nfVault.documents.events.DocumentDeletedEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,14 +26,14 @@ import java.util.List;
 @Slf4j
 public class DocumentService {
     private final DocumentRepository documentRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OutboxEventAPI outboxEventAPI;
 
     public DocumentService(
             DocumentRepository documentRepository,
-            ApplicationEventPublisher eventPublisher
+            OutboxEventAPI outboxEventAPI
     ) {
         this.documentRepository = documentRepository;
-        this.eventPublisher = eventPublisher;
+        this.outboxEventAPI = outboxEventAPI;
     }
 
     @Transactional
@@ -57,15 +60,10 @@ public class DocumentService {
                 .parent(parent)
                 .build();
         documentRepository.create(document);
-        publishDocumentChanged(document);
+
+        publishDocumentCreated(document);
 
         log.warn("Created document {}", document);
-
-        eventPublisher.publishEvent(new DocumentCreatedEvent(
-                document.getId(),
-                document.getType(),
-                document.getName()
-        ));
 
         return document.getId();
     }
@@ -116,12 +114,8 @@ public class DocumentService {
     }
 
     @Transactional
-    @EventListener(PreviewCreatedEvent.class)
-    public void updateDocumentPreview(PreviewCreatedEvent event) {
-        documentRepository.updatePreview(
-                event.id(),
-                event.imagePath()
-        );
+    public void updateDocumentPreview(Integer id, String imagePath) {
+        documentRepository.updatePreview(id, imagePath);
     }
 
     @Transactional
@@ -131,11 +125,11 @@ public class DocumentService {
         documentRepository.getByParentId(id)
                 .forEach(child -> deleteDocumentById(child.getId()));
         documentRepository.delete(document);
-        eventPublisher.publishEvent(new DocumentDeletedEvent(document.getId()));
+        outboxEventAPI.enqueue(new DocumentDeletedEvent(document.getId()));
     }
 
     private void publishDocumentTitleChanged(Document document) {
-        eventPublisher.publishEvent(new DocumentNameChangedEvent(
+        outboxEventAPI.enqueue(new DocumentNameChangedEvent(
                 document.getId(),
                 document.getType(),
                 document.getName()
@@ -143,11 +137,19 @@ public class DocumentService {
     }
 
     private void publishDocumentChanged(Document document) {
-        eventPublisher.publishEvent(new DocumentChangedEvent(
+        outboxEventAPI.enqueue(new DocumentChangedEvent(
                 document.getId(),
                 document.getType(),
                 document.getName(),
                 document.getContent()
+        ));
+    }
+
+    private void publishDocumentCreated(Document document) {
+        outboxEventAPI.enqueue(new DocumentCreatedEvent(
+                document.getId(),
+                document.getType(),
+                document.getName()
         ));
     }
 }
