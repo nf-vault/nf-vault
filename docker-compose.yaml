@@ -68,9 +68,14 @@ services:
   nginx:
     image: nf-vault-frontend:latest
     restart: on-failure
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME:?DOMAIN_NAME is required}
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ${SSL_CERT_PATH:?SSL_CERT_PATH is required}:/etc/nginx/certs/cert.crt:ro,Z
+      - ${SSL_KEY_PATH:?SSL_KEY_PATH is required}:/etc/nginx/certs/key.key:ro,Z
     networks:
       - web_server_net
 
