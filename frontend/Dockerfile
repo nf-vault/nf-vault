@@ -6,8 +6,7 @@ RUN npm install && npm run build:prod
 
 FROM nginx:1.29.4-alpine-slim
 
-COPY ./nginx-conf/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY ./nginx-conf/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build-front /app/dist/ /var/www/html/main/
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 5454

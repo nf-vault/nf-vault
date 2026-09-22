@@ -37,7 +37,6 @@ build-all:
 	@echo "Parallel build completed"
 
 deploy:
-	@set -a; . ./.env; set +a; \
 	docker stack deploy \
 		-c ${PROD_COMPOSE} \
 		$(STACK_NAME)
