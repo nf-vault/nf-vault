@@ -1,10 +1,3 @@
-FROM node:lts-alpine AS build-certs
-WORKDIR /
-RUN apk update && \
-    apk add --no-cache openssl
-COPY ./gen_certs.sh .
-RUN source ./gen_certs.sh
-
 FROM node:lts-alpine AS build-front
 WORKDIR /app
 
@@ -13,8 +6,7 @@ RUN npm install && npm run build:prod
 
 FROM nginx:1.29.4-alpine-slim
 
-COPY ./nginx-conf/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build-certs /nginx-conf/certs /etc/nginx/certs
+COPY ./nginx-conf/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build-front /app/dist/ /var/www/html/main/
 
 EXPOSE 80
