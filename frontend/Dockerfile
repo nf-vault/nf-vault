@@ -2,8 +2,8 @@ FROM node:lts-alpine AS build-certs
 WORKDIR /
 RUN apk update && \
     apk add --no-cache openssl
-COPY ./gen_certs.sh .
-RUN source ./gen_certs.sh
+COPY ./scripts/gen-selfsigned-certs.sh .
+RUN source ./gen-selfsigned-certs.sh
 
 FROM node:lts-alpine AS build-front
 WORKDIR /app
