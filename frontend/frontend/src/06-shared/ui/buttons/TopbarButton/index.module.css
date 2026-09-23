@@ -1,0 +1,49 @@
+.topbar-button {
+  background: transparent;
+  color: var(--editor-topbar-btn-caption);
+  border-radius: 4px;
+  padding: 2px;
+
+  cursor: pointer;
+  outline: none;
+  border: none;
+
+  transition: background-color 0.15s ease;
+  transition: color 0.15s ease-out;
+
+  width: 25px;
+  height: 25px;
+  font-size: 0.8rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar-button:hover {
+  background-color: var(--editor-topbar-btn-hover);
+}
+
+.topbar-button.active {
+  background-color: var(--editor-topbar-btn-active);
+  animation: clickAnimation 0.15s ease;
+  color: var(--editor-topbar-btn-caption-active);
+}
+.topbar-button.active:hover {
+  background-color: var(--editor-topbar-btn-active);
+}
+
+@keyframes clickAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.92);
+  }
+  85% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,46 @@
+.browserContainer {
+  overflow: hidden;
+
+  border: 1px solid hsl(0 0% 32%);
+  border-radius: 4px;
+  background:
+    linear-gradient(
+      180deg,
+      hsl(0 0% 8%) 0,
+      hsl(0 0% 4%) 100%
+    );
+  box-shadow: inset 0 1px 0 hsl(0 0% 18%);
+  color: var(--text-primary);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.browserHeader {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  gap: 10px;
+
+  padding: 5px 10px;
+  border-top: 1px solid hsl(0 0% 18%);
+  border-bottom: 1px solid hsl(0 0% 22%);
+
+  background-color: hsl(0 0% 10%);
+  color: hsl(0 0% 58%);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.fileList {
+  min-height: 118px;
+}
+
+.emptyState {
+  min-height: 118px;
+  display: grid;
+  place-items: center;
+
+  padding: 10px;
+  color: hsl(0 0% 48%);
+  font-size: 0.9rem;
+  text-align: center;
+}

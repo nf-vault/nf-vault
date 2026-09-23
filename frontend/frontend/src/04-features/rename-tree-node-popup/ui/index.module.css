@@ -1,0 +1,17 @@
+.actionButton {
+  padding: 0 3px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: hsl(0 0% 56%);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.actionButton:hover,
+.actionButton:focus-visible {
+  background-color: hsl(0 0% 24%);
+  color: hsl(0 0% 100%);
+  outline: none;
+}

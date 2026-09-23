@@ -1,0 +1,46 @@
+.container {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+
+  min-height: 28px;
+  padding: 3px 10px;
+  border-top: 1px solid hsl(0 0% 15%);
+
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.92rem;
+
+  transition:
+    background-color 0.07s ease-out,
+    color 0.07s ease-out;
+}
+
+.container:hover {
+  background-color: hsl(0 0% 14%);
+  color: var(--text-accent);
+}
+
+.container:focus-visible {
+  outline: 1px solid hsl(0 0% 60%);
+  outline-offset: -2px;
+}
+
+.fileType {
+  text-transform: uppercase;
+  color: hsl(0 0% 62%);
+}
+
+.fileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}

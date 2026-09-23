@@ -1,0 +1,14 @@
+**/target/
+
+# Игнорируем все содержимое папки .idea
+.idea/
+
+# Но разрешаем отслеживать основные настройки проекта
+!.idea/workspace.xml
+!.idea/tasks.xml
+!.idea/dictionaries/
+!.idea/vcs.xml
+!.idea/modules.xml
+
+# Никаких Intelij Modules
+*.iml

@@ -1,0 +1,18 @@
+:root {
+  --bg-primary: #000;
+
+  --text-primary: #ebebeb;
+  --text-secondary: #bfbfbf;
+  --text-accent: #f8f8f8;
+
+  --error-bg: #b9454e;
+
+  --editor-topbar-btn-caption: oklch(85% 0.01 300);
+  --editor-topbar-btn-caption-active: oklch(75% 0.1 300);
+  --editor-topbar-btn-hover: oklch(95% 0 260 / 0.2);
+  --editor-topbar-btn-active: oklch(60% 0.2 298 / 0.35);
+  
+  --editor-border: oklch(50% 0 0);
+
+  font-size: 15px;
+}

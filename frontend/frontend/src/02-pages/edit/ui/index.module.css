@@ -1,0 +1,17 @@
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100vw;
+  min-height: 100vh;
+  max-height: 100%;
+}
+  .editorWrapper {
+    padding: 10px;
+    
+    flex: 1 0 auto;
+    
+    width: 100%;
+    max-width: 1000px;
+  }

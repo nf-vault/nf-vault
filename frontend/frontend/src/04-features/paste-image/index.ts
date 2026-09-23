@@ -1,0 +1,1 @@
+export { pasteImagePlugin } from "./lib/pasteImagePlugin";

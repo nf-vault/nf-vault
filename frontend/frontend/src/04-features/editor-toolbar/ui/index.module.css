@@ -1,0 +1,23 @@
+.topbar {
+  margin: 5px 1px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  color: var(--text-primary);
+  font-size: 0.9rem;
+
+  border: 1px solid var(--editor-border);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.block {
+  opacity: 0.8;
+}
+
+.marks {
+  display: inline-flex;
+  gap: 3px;
+}

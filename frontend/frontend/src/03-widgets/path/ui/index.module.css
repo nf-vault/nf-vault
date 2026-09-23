@@ -1,0 +1,22 @@
+.pathWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+
+  min-height: 30px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+
+  color: hsl(0 0% 62%);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9rem;
+  cursor: default;
+}
+
+.pathWrapper span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}

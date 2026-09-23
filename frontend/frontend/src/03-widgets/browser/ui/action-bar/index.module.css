@@ -1,0 +1,17 @@
+.container {
+  background-color: hsl(0 0% 12%);
+  border-bottom: 1px solid hsl(0 0% 28%);
+  padding: 6px 8px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.container::before {
+  content: "files";
+  margin-right: auto;
+  color: hsl(0 0% 68%);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85rem;
+}

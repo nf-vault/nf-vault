@@ -1,0 +1,50 @@
+.editorTextarea {
+  /* Настройка всех шрифтов в редакторе */
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-size: 16px;
+  line-height: 1.05;
+
+  /* Задаём размеры */
+  min-height: 180px;
+  min-width: 300px;
+  width: 100%;
+  height: 100%;
+  flex: 1 0 auto;
+
+  /* Убираем линию вокруг */
+  outline: none;
+}
+
+.editorTextarea :global(.cm-editor) {
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.editorTextarea :global(.cm-editor.cm-focused) {
+  outline: none;
+}
+
+.editorTextarea :global(.cm-content) {
+  min-height: 180px;
+  padding: 8px 4px 24px;
+  caret-color: var(--text-accent);
+}
+
+.editorTextarea :global(.cm-scroller) {
+  overflow-x: hidden;
+}
+
+.editorTextarea :global(.cm-line) {
+  padding: 0;
+}
+
+.editorTextarea :global(.cm-placeholder) {
+  color: var(--text-primary);
+  opacity: 0.45;
+}
+
+.editorTextarea :global(.cm-activeLine) {
+  background: transparent;
+}
