@@ -1,3 +1,44 @@
+## 0.1.0-b0 (2026-09-23)
+
+### Feat
+
+- **nfVault**: rewrite events using outbox module and amqp
+- **nfVault**: enable oubox module and specify its settings
+- **outbox**: add implementation of outbox pattern and RabbitMQ batch publishing
+- **init.sql**: add simple table for outbox pattern
+- **DocumentCreatedEvent**: add event and its handling in DocumentPreviewService
+- **nginx.conf**: send all crawlers to document-og instead of document
+- add Open Graph documents generation via tymeleaf
+- implement buisness-logic of preview generation on title update
+- add previewGenerator module to global pom
+- **previewGenerator/caption**: add support of text wrapping
+- **previewGenerator**: enable geometry anti-aliasing
+- **previewGenerator/caption**: use fillRoundedRect instead of fillRect
+- **previewGenerator/caption**: enable anti-aliasing
+- **previewGenerator/caption**: add boxPadding and canvasPadding
+- **previewGenerator/caption**: add caption layer prototype
+- **previewGenerator**: implement preview background generation
+
+### Fix
+
+- **nginx.conf**: make CSP header single-line for nginx compatibility
+- **DocumetPreviewService**: replace @Component with @Service to ensure proper @TransactionalEventListener work
+- **preview.font-path**: remove double quotes that had been corrupting font path
+- **init.sql**: make Documents.preview_path nullable
+- **previewGenerator**: pass ImageProvider to ImageBackgroundStrategy via config
+
+### Refactor
+
+- **AuthController**: set `secure` flag in jwt cookie
+- **nginx**: remove ssl from pojects scope of responsibility
+- **nginx**: pass serts via volumes and add domain name + .env vars support
+- **gen-selfsigned-certs**: now selfsigned sertificates stored in `frontend/certs` instead of `frontend/nginx-conf/certs`
+- **gen-selfsigned-certs**: move script to ./scripts
+- **nfVault**: separate event listeners from services
+- **CaptionGenerator**: place setFont and setColor for text properly
+- **previewGenerator**: enable anti-aliasing globally
+- **backend**: reorganize project into modular monolyth
+
 ## 0.1.0-a1 (2026-08-10)
 
 ### Feat
